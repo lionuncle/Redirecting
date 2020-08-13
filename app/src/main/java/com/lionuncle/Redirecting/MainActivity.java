@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
         saveBtnSms = findViewById(R.id.saveBtnSms);
         forwardToPhoneNumberTextSms = findViewById(R.id.phoneNumberTextSms);
 
-        requestCallPermission();
         checkAndRequestPermissions();
+        requestCallPermission();
         String smsnumber = getSharedPreferences("data", Context.MODE_PRIVATE).getString("number", null);
         if (smsnumber != null){
             forwardToPhoneNumberTextSms.setText(smsnumber);
@@ -80,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
         saveBtnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                        Manifest.permission.CALL_PHONE)) {
+                    requestCallPermission();
+                    return;
+                }
                 if (forwardToPhoneNumberTextCall.getText().toString().equals("")){
                     Toast.makeText(MainActivity.this, "Please provide phone number to forward calls", Toast.LENGTH_SHORT).show();
                     return;
@@ -91,6 +96,11 @@ public class MainActivity extends AppCompatActivity {
         forwardSwitchCall.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                        Manifest.permission.CALL_PHONE)) {
+                    requestCallPermission();
+                    return;
+                }
                 if (isChecked){
                     forwardToPhoneNumberTextCall.setVisibility(View.VISIBLE);
                     saveBtnCall.setVisibility(View.VISIBLE);
@@ -109,6 +119,9 @@ public class MainActivity extends AppCompatActivity {
         saveBtnSms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!checkAndRequestPermissions()){
+                    return;
+                }
                 if (forwardToPhoneNumberTextSms.getText().toString().equals("")){
                     Toast.makeText(MainActivity.this, "Please provide Phone number to forward SMS to", Toast.LENGTH_SHORT).show();
                     return;
@@ -124,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
         forwardSwitchSms.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(!checkAndRequestPermissions()){
+                    return;
+                }
                 if (isChecked){
                     forwardToPhoneNumberTextSms.setVisibility(View.VISIBLE);
                     saveBtnSms.setVisibility(View.VISIBLE);
@@ -144,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     private void callforward(String callForwardString)
     {
         if (checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Please provide permissions", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Please provide permissions", Toast.LENGTH_SHORT).show();
             requestCallPermission();
             return;
         }
@@ -173,23 +189,8 @@ public class MainActivity extends AppCompatActivity {
     private void requestCallPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.CALL_PHONE)) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Permission needed")
-                    .setMessage("This permission is needed in order to manage call forwarding")
-                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[] {Manifest.permission.CALL_PHONE}, CALL_PERMISSION_CODE);
-                        }
-                    })
-                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    })
-                    .create().show();
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[] {Manifest.permission.CALL_PHONE}, CALL_PERMISSION_CODE);
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[] {Manifest.permission.CALL_PHONE}, CALL_PERMISSION_CODE);
