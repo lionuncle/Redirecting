@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.lionuncle.Redirecting"
+        applicationId "com.lionuncle.redirecting"
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1

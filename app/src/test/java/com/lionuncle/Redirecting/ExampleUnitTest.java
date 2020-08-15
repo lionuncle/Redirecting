@@ -1,4 +1,4 @@
-package com.lionuncle.Redirecting;
+package com.lionuncle.redirecting;
 
 import org.junit.Test;
 
