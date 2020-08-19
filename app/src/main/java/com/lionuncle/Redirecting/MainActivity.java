@@ -10,10 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -21,12 +23,24 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int CALL_PERMISSION_CODE = 111;
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1035;
     private Switch forwardSwitchCall,forwardSwitchSms;
     private Button saveBtnCall,saveBtnSms;
+    private AdView mAdView;
     private EditText forwardToPhoneNumberTextCall,forwardToPhoneNumberTextSms;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +53,54 @@ public class MainActivity extends AppCompatActivity {
         forwardToPhoneNumberTextSms = findViewById(R.id.phoneNumberTextSms);
         checkAndRequestPermissions();
         requestCallPermission();
+
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                //Toast.makeText(MainActivity.this, initializationStatus.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+        mAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+               // Toast.makeText(MainActivity.this, "load", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+                // Code to be executed when an ad request fails.
+                //Toast.makeText(MainActivity.this, "error: "+ adError.toString(), Toast.LENGTH_SHORT).show();
+                Log.d("Ad-error",""+adError.getCode());
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
 
         String smsnumber = getSharedPreferences("data", Context.MODE_PRIVATE).getString("number", null);
         String callnumber = getSharedPreferences("data", Context.MODE_PRIVATE).getString("callnumber", null); //SETTING PHONE NUMBERS IN EDIT TEXT
